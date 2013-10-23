@@ -1,0 +1,17 @@
+{
+  "name": "mbb-tools",
+  "title": "MBB Chrome App",
+  "version": "1.0.2",
+  "author": {
+    "name": "libo",
+    "email": "hellolibo@gmail.com"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-text-replace": "0.3.7",
+    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-contrib-cssmin": "~0.6.2",
+    "grunt-contrib-uglify": "~0.2.4",
+    "grunt-contrib-copy": "~0.4.1"
+  }
+}

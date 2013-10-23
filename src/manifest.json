@@ -1,0 +1,30 @@
+{
+
+    "manifest_version": 2,
+    "name": "麦包包页面统计信息可视化",
+    "description": "提供部分页面的数据分析信息，及一些小工具",
+    "version": "1.0.2",
+    "browser_action": {
+        "default_title": "麦包包页面统计信息可视化",
+        "default_icon": "img/active_icon.png",
+        "default_popup": "html/popup.html"
+    },
+    "icons": {
+        "16": "img/chart_stock.png",
+        "48": "img/logo.png"
+    },
+    "background": {
+        "scripts": [
+            "js/libs/jquery-2.0.3.min.js",
+            "js/libs/underscore-min.js",
+            "js/core.js",
+            "js/eventPage.js"
+        ],
+        "persistent": false
+    },
+    "permissions": [
+        "activeTab", "tabs", "contextMenus", "notifications", "http://*.mbaobao.com/*"
+    ],
+    "update_url": "https://github.com/hellolibo/mbb-tools/update.xml"
+
+}
