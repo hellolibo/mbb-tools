@@ -25,6 +25,6 @@
     "permissions": [
         "activeTab", "tabs", "contextMenus", "notifications", "http://*.mbaobao.com/*"
     ],
-    "update_url": "https://github.com/hellolibo/mbb-tools/update.xml"
+    "update_url": "http://cca.mbaobao.com/mbb-tools/update.xml"
 
 }
