@@ -16,6 +16,12 @@ $(function () {
             var value = data.value;
             var key = el.attr("id");
             mtModel.set(key, value);
+
+            if (key === "orderWarningOn") {
+                chrome.runtime.sendMessage({
+                    action: (value ? "startOrderNotifyMonitor" : "stopOrderNotifyMonitor")
+                }, function (response) {});
+            }
         });
 
     });

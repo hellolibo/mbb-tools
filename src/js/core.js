@@ -6,7 +6,6 @@ var MbbToolsModel = function () {
     var defaults = {
         homeAnalyzeOn: true,
         activityAnalyzeOn: false,
-        qualityToolsOn: false,
         orderWarningOn: false
     };
 
@@ -150,8 +149,6 @@ var OrderNotify = (function () {
                     data.count = (raise > 0) ? raise : 0;
                     curOrderCount = total;
 
-                    data.count = 0
-
                     if (data.count === 0) {
                         zeroTimes = zeroTimes + 1;
                         var _timeDiv = timeDiv()
@@ -171,7 +168,7 @@ var OrderNotify = (function () {
     function timeDiv() {
         var now = new Date();
         var h = now.getHours();
-        if (h > 9 && h < 11) {
+        if (h > 9 && h < 23) {
             return 3;
         } else {
             return 5;
