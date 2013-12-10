@@ -1,4 +1,3 @@
-
 $(function () {
 
     'use strict';
@@ -21,8 +20,7 @@ $(function () {
         })
 
         dataPromise.done(function (linkJson) {
-            console.log("path match log:");
-            console.groupCollapsed();
+            console.groupCollapsed("Path match log");
             $("body").on("mouseenter", "a,form, .mt-map-area", function () {
                 var point = $(this).find(".mt-point")
                 if (point.length) {
@@ -49,8 +47,7 @@ $(function () {
                 window.open($(this).data("href"))
             })
 
-            console.log("a link match fail:");
-            console.group();
+            console.group('A tag match:');
             $("a").each(function (index, item) {
                 var link = $(item)
                 var orig_href = link.attr("href")
@@ -68,11 +65,21 @@ $(function () {
                     }
                 }
 
+                // 对于漂浮的图片，a没有高度
+                var includeImg = link.find("img")
+                if (includeImg.css('float') && includeImg.css('float') !== 'none') {
+                    link.css({
+                        'display': 'block',
+                        'width': includeImg.width(),
+                        'height': includeImg.height(),
+                        'float': includeImg.css('float')
+                    })
+                }
+
             })
             console.groupEnd();
 
-            console.log("img map match fail:");
-            console.group();
+            console.group("Img map match:");
             $("img").each(function (index, item) {
                 var self = $(this);
                 var mapname = self.attr("usemap");

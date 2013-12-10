@@ -148,7 +148,6 @@ var OrderNotify = (function () {
                     var raise = total - curOrderCount;
                     data.count = (raise > 0) ? raise : 0;
                     curOrderCount = total;
-
                     if (data.count === 0) {
                         zeroTimes = zeroTimes + 1;
                         var _timeDiv = timeDiv()
@@ -169,7 +168,7 @@ var OrderNotify = (function () {
         var now = new Date();
         var h = now.getHours();
         if (h > 9 && h < 23) {
-            return 3;
+            return 1;
         } else {
             return 5;
         }
