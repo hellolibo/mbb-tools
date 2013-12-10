@@ -3,7 +3,7 @@
     "manifest_version": 2,
     "name": "麦包包页面统计信息可视化",
     "description": "提供部分页面的数据分析信息，及一些小工具",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "browser_action": {
         "default_title": "麦包包页面统计信息可视化",
         "default_icon": "img/active_icon.png",
@@ -25,6 +25,6 @@
     "permissions": [
         "activeTab", "tabs", "contextMenus", "notifications", "http://*.mbaobao.com/*"
     ],
-    "update_url": "http://cca.mbaobao.com/mbb-tools/update.xml"
+    "update_url": "https://raw.github.com/hellolibo/mbb-tools/master/update.xml"
 
 }
