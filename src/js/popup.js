@@ -27,4 +27,8 @@ $(function () {
     });
 
 
+    $('.powerby').find('a').on('click', function(){
+        chrome.tabs.create({url:$(this).attr('href')})
+    })
+
 })

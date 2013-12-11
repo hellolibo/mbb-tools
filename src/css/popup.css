@@ -39,3 +39,6 @@ body{
     width:180px;
     display: block;
 }
+
+.powerby {font-size: 10px;text-align: right;margin:10px;color:#ddd;}
+.powerby a{color:#ddd;}

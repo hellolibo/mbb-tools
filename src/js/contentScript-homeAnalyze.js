@@ -1,4 +1,3 @@
-
 $(function () {
 
     'use strict';
@@ -28,15 +27,20 @@ $(function () {
                 hideTip()
             }
         })
-
-
+        console.group('A tag match')
         $("a").each(function (index, item) {
             var link = $(item)
             var org_href = link.attr("href")
+            var bi = link.attr('bi')
             var href = org_href
+
             if (href && href.charAt(0) != "#") {
 
-                href = href.replace(/\s+\?/, "?").replace(/\.com(\?.+)?$/, ".com/$1").replace(/\?p=[0-9]+/, "")
+                href = href.replace(/\s+\?/, "?")
+                    .replace(/\.com(\?.+)?$/, ".com/$1")
+                    .replace(/\?p=[0-9]+/, "") //去除清缓存的随机数
+
+                href = checkBI(href, bi)
 
                 var urlData = linkJson[href]
 
@@ -49,10 +53,11 @@ $(function () {
 
         })
 
+        console.groupEnd()
+
         $("form").each(function (index, item) {
             var action = $(item).attr("action")
             var urlData = linkJson[action]
-            console.log(action)
             if (urlData) {
                 setMTBox(urlData, $(item))
             }
@@ -108,6 +113,27 @@ $(function () {
             tip = $(document.createElement("div")).addClass("mt-tip").appendTo("body")
         }
         return tip
+    }
+
+    function checkBI(href, bi) {
+
+        return (bi && bi !== '' && (href.indexOf('l_bi') == -1)) ? href.replace(/^([^?#]+)(\?.*)?(#.*)?$/i, function (href, path, query, hash) {
+            href = href || '';
+            path = path || '';
+            query = query || '';
+            hash = hash || '';
+
+            if (query.indexOf('l_bi') == -1) {
+                if (query.length === 0) {
+                    query = "?l_bi=" + bi;
+                } else {
+                    query = query + (query.length > 1 ? '&' : '') + 'l_bi=' + bi
+                }
+            }
+
+            return path + query + hash;
+        }) : href
+
     }
 
 })
