@@ -6,12 +6,7 @@ $(function () {
 
     var timeGroup = 1
 
-    var dataPromise = $.ajax({
-        url: "http://dashboard.mbaobao.com/data/indexPvServlet" + "?" + (new Date()).getTime(),
-        type: "GET",
-        dataType: "JSON"
-    })
-
+    
     dataPromise.done(function (linkJson) {
 
         $("body").on("mouseenter", "a,form", function () {

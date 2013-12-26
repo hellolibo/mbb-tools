@@ -3,7 +3,7 @@
     "manifest_version": 2,
     "name": "麦包包页面统计信息可视化",
     "description": "提供部分页面的数据分析信息，及一些小工具",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "browser_action": {
         "default_title": "麦包包页面统计信息可视化",
         "default_icon": "img/active_icon.png",
@@ -22,6 +22,11 @@
         ],
         "persistent": false
     },
+    "content_scripts": [{
+        "matches": ["http://*.mbaobao.com/*"],
+        "css": ["css/content.css"],
+        "js": ["js/libs/jquery-2.0.3.min.js", "js/libs/underscore-min.js", "js/content.js"]
+    }],
     "permissions": [
         "activeTab", "tabs", "contextMenus", "notifications", "http://*.mbaobao.com/*"
     ],

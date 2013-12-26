@@ -48,63 +48,6 @@ MbbToolsModel.prototype.set = function () {
 }
 
 
-var HomeAnalyze = function () {}
-
-HomeAnalyze.prototype.install = function (tabId) {
-
-    chrome.tabs.executeScript(tabId, {
-        file: "js/libs/jquery-2.0.3.min.js",
-        runAt: "document_end"
-    }, function () {
-        chrome.tabs.executeScript(tabId, {
-            file: "js/libs/underscore-min.js",
-            runAt: "document_end"
-        }, function () {
-            chrome.tabs.executeScript(tabId, {
-                file: "js/contentScript-homeAnalyze.js",
-                runAt: "document_end"
-            })
-        })
-    })
-
-    chrome.tabs.insertCSS(tabId, {
-        file: "css/analyze.css"
-    })
-
-    chrome.contextMenus.create({
-        type: "normal",
-        id: "showURLAnalyzeHistory",
-        title: "显示历史统计",
-        contexts: ["link"],
-    }, function () {
-        console.log("home contexts menu created.")
-    })
-}
-
-var ActivityAnalyze = function () {}
-
-ActivityAnalyze.prototype.install = function (tabId) {
-
-    chrome.tabs.executeScript(tabId, {
-        file: "js/libs/jquery-2.0.3.min.js",
-        runAt: "document_end"
-    }, function () {
-        chrome.tabs.executeScript(tabId, {
-            file: "js/libs/underscore-min.js",
-            runAt: "document_end"
-        }, function () {
-            chrome.tabs.executeScript(tabId, {
-                file: "js/contentScript-activityAnalyze.js",
-                runAt: "document_end"
-            })
-        })
-    })
-
-    chrome.tabs.insertCSS(tabId, {
-        file: "css/analyze.css"
-    })
-
-}
 
 var OrderNotify = (function () {
     var self = {};
@@ -194,17 +137,5 @@ var OrderNotify = (function () {
 })()
 
 
-var helper = {
-    where: function (url) {
-        return {
-            "isHome": /^http:\/\/www\.mbaobao\.com\/(?:\?[^?]+)?(?:#[-a-z0-9_]+)?$/i.test(url),
-            "isActivity": /^http:\/\/mkt\.mbaobao\.com\/a\-/i.test(url),
-            "isSearch": /^http:\/\/search\.mbaobao\.com\/search\/search/i.test(url)
-        }
-    }
-}
-
 
 var mtModel = new MbbToolsModel()
-var homeAnalyze = new HomeAnalyze()
-var activityAnalyze = new ActivityAnalyze()
