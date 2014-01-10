@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='alniojjhmccldipedbcanijpikpbince'>
-    <updatecheck codebase='http://cca.mbaobao.com/mbb-tools/bin/1.0.9/mbb-tools.crx?1210' version='1.0.9' />
+    <updatecheck codebase='http://cca.mbaobao.com/mbb-tools/bin/1.0.10/mbb-tools.crx?1210' version='1.0.10' />
   </app>
 </gupdate>

@@ -139,7 +139,7 @@ var sideBarView = {
 };
 
 
-var homeAnalyzeView = _.extend(analyzeView, {
+var homeAnalyzeView = _.extend({}, analyzeView, {
     init: function () {
         var self = this
         sideBarView.init()
@@ -151,7 +151,7 @@ var homeAnalyzeView = _.extend(analyzeView, {
     },
     update: function (b, e) {
         var self = this
-        mtContent.getHomeData(b, e).done(function (data) {
+        mtContent.getHomeData().done(function (data) {
             self.render(data)
             sideBarView.render(data.total)
         }).fail(function () {
@@ -213,7 +213,7 @@ var homeAnalyzeView = _.extend(analyzeView, {
 
 });
 
-var promotionPageAnalyzeView = _.extend(analyzeView, {
+var promotionPageAnalyzeView = _.extend({}, analyzeView, {
     init: function () {
         var self = this;
         sideBarView.init()
@@ -409,7 +409,7 @@ var promotionPageAnalyzeView = _.extend(analyzeView, {
     }
 })
 
-var categoryPageAnalyzeView = _.extend(analyzeView, {
+var categoryPageAnalyzeView = _.extend({}, analyzeView, {
     init: function (categoryType) {
         var self = this;
         self.cateType = categoryType;
