@@ -1,15 +1,17 @@
-
 var MbbToolsModel = function () {
 
     'use strict';
 
+    var version = '@VERSION';
+
     var defaults = {
         homeAnalyzeOn: true,
-        activityAnalyzeOn: false,
+        promotionPageAnalyzeOn: false,
+        categoryPageAnalyzeOn: false,
         orderWarningOn: false
     };
 
-    this.keyName = "mt";
+    this.keyName = "mt_" + version;
 
     var model = this.get();
 

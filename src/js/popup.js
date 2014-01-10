@@ -1,4 +1,5 @@
 /*global mtModel:true*/
+
 $(function () {
 
     'use strict';

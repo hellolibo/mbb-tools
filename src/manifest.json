@@ -25,11 +25,13 @@
     "content_scripts": [{
         "matches": ["http://*.mbaobao.com/*"],
         "css": ["css/content.css"],
-        "js": ["js/libs/jquery-2.0.3.min.js", "js/libs/underscore-min.js", "js/content.js"]
+        "js": ["js/libs/jquery-2.0.3.min.js", "js/libs/underscore-min.js", "js/content.js"],
+        "run_at": "document_start"
+
     }],
     "permissions": [
         "activeTab", "tabs", "contextMenus", "notifications", "http://*.mbaobao.com/*"
     ],
-    "update_url": "https://raw.github.com/hellolibo/mbb-tools/master/update.xml"
-
+    "update_url": "https://raw.github.com/hellolibo/mbb-tools/master/update.xml",
+    "web_accessible_resources": ["img/btn-bg.png"]
 }
