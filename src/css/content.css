@@ -39,16 +39,16 @@ html .mt-tip{
 
 
 .mt-side {
-    width:154px;
+    width:245px;
     background-color: #2F373D;
     position: fixed;
-    right:-154px;
+    right:-245px;
     top:0;
     height: 100%;
     z-index: 20000;
     -webkit-transition: right 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
     transition: right 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: 0 0 10px rgba(0,0,0,0.5)
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
 .mt-side .mt-side-btn{
@@ -79,4 +79,19 @@ html .mt-tip{
 
 .mt-open{
     right:0;
+}
+
+
+.mt-side .datepicker {
+    position: absolute;
+    bottom:5px;
+    left:-50%;
+    margin-left:129px;
+}
+
+.mt-side h3{
+    color:#fff;
+    line-height: 40px;
+    font-size: 12px;
+    text-align: left;
 }

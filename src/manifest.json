@@ -3,7 +3,7 @@
     "manifest_version": 2,
     "name": "麦包包页面统计信息可视化",
     "description": "提供部分页面的数据分析信息，及一些小工具",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "browser_action": {
         "default_title": "麦包包页面统计信息可视化",
         "default_icon": "img/active_icon.png",
@@ -24,8 +24,8 @@
     },
     "content_scripts": [{
         "matches": ["http://*.mbaobao.com/*"],
-        "css": ["css/content.css"],
-        "js": ["js/libs/jquery-2.0.3.min.js", "js/libs/underscore-min.js", "js/content.js"],
+        "css": ["css/content.css", "css/ui-darkness/jquery-ui-1.10.4.custom.min.css"],
+        "js": ["js/libs/jquery-2.0.3.min.js","js/libs/jquery-ui-1.10.4.custom.min.js", "js/libs/underscore-min.js", "js/content.js"],
         "run_at": "document_start"
 
     }],
@@ -33,5 +33,5 @@
         "activeTab", "tabs", "contextMenus", "notifications", "http://*.mbaobao.com/*"
     ],
     "update_url": "https://raw.github.com/hellolibo/mbb-tools/master/update.xml",
-    "web_accessible_resources": ["img/btn-bg.png"]
+    "web_accessible_resources": ["img/btn-bg.png", "css/ui-darkness/images/ui-bg_inset-soft_25_000000_1x100.png","css/ui-darkness/images/ui-bg_gloss-wave_25_333333_500x100.png","css/ui-darkness/images/ui-bg_glass_20_555555_1x400.png","css/ui-darkness/images/ui-icons_ffffff_256x240.png","css/ui-darkness/images/ui-bg_highlight-soft_80_eeeeee_1x100.png","css/ui-darkness/images/ui-bg_inset-soft_30_f58400_1x100.png","css/ui-darkness/images/ui-bg_glass_40_0078a3_1x400.png", "js/content.js"]
 }

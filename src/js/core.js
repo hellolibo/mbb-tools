@@ -5,9 +5,7 @@ var MbbToolsModel = function () {
     var version = '@VERSION';
 
     var defaults = {
-        homeAnalyzeOn: true,
-        promotionPageAnalyzeOn: false,
-        categoryPageAnalyzeOn: false,
+        analyzeOn: true,
         orderWarningOn: false
     };
 

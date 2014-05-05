@@ -1,19 +1,37 @@
-
 var mtContent = {
     init: function () {
         var self = this
-        var url = self.url = location.href
+        var url = self.url = location.hostname + (location.pathname == '/' ? '' : location.pathname)
         self.where = {
-            "isHome": /^http:\/\/www\.mbaobao\.com\/(?:\?[^?]+)?(?:#[-a-z0-9_]+)?$/i.test(url),
-            "isPromotion": /^http:\/\/mkt\.mbaobao\.com\/a\-/i.test(url),
-            "isSearch": /^http:\/\/search\.mbaobao\.com\/search\/search/i.test(url),
-            "isCategoryWomen": /^http:\/\/www\.mbaobao\.com\/category\/list\/women/i.test(url),
-            "isCategoryMen": /^http:\/\/www\.mbaobao\.com\/category\/list\/men/i.test(url),
-            "isCategoryChoice": /^http:\/\/www\.mbaobao\.com\/choice\/choice/i.test(url)
+            "isHome": url == 'www.mbaobao.com',
+            "isPromotion": /^mkt\.mbaobao\.com\/a\-/i.test(url),
+            "isSearch": url == 'search.mbaobao.com/search/search',
+            "isCategoryWomen": url == 'www.mbaobao.com/category/list/women',
+            "isCategoryMen": url == 'www.mbaobao.com/category/list/men',
+            "isCategoryChoice": url == 'www.mbaobao.com/choice/choice'
         }
     },
-    getHomeData: function () {
-        return this.pageData()
+    getData: function (date) {
+        var self = this;
+
+        self.date = date;
+
+        if (self.where.isHome) {
+            return self.pageData({
+                page: 'index',
+                url_key: ''
+            });
+        } else if (self.where.isPromotion) {
+            return self.getPromotionPageData()
+        } else if (self.where.isCategoryWomen) {
+            return self.getCategoryPageData('women')
+        } else if (self.where.isCategoryMen) {
+            return self.getCategoryPageData('men')
+        } else if (self.where.isCategoryChoice) {
+            return self.getCategoryPageData('choice')
+        } else {
+            return self.pageData()
+        }
     },
     getPromotionPageData: function () {
         var self = this;
@@ -29,10 +47,14 @@ var mtContent = {
         })
     },
     pageData: function (queryData) {
+        var self = this;
+        console.log(self.url)
         return $.ajax({
             url: "http://dashboard.mbaobao.com/data/indexPvServlet",
             data: _.extend({
-                d: (new Date()).getTime()
+                d: self.getTimeNumber(),
+                url_key: self.url,
+                date_str: self.date
             }, queryData || {}),
             type: "GET",
             dataType: "JSON"
@@ -59,8 +81,12 @@ var mtContent = {
     },
     getPromotionPageName: function () {
         var url = this.url;
-        var matchs = url.match(/^http:\/\/mkt\.mbaobao\.com\/a-([^\/]+)/i);
+        var matchs = url.match(/^mkt\.mbaobao\.com\/a-([^\/]+)/i);
         return matchs && matchs[1] || '';
+    },
+    getTimeNumber: function () {
+        var now = new Date();
+        return now.getTime();
     }
 }
 
@@ -70,6 +96,181 @@ mtContent.init()
 
 var analyzeView = {
     timeGroup: 1,
+    init: function () {
+        var self = this
+        self.isCategory = mtContent.where.isCategoryWomen || mtContent.where.isCategoryMen || mtContent.where.isCategoryChoice
+
+        sideBarView.init()
+        sideBarView.onChangeDate(function (date) {
+            self.clearNodeTip()
+            self.update(date)
+        })
+
+        self.update()
+    },
+    update: function (date) {
+        var self = this
+        mtContent.getData(date).done(function (data) {
+            self.render(data)
+            sideBarView.render(data.total)
+        }).fail(function () {
+            console.log('load data fail -> ', arguments)
+        })
+    },
+    render: function (linkJson) {
+        var self = this
+        $(".mt-point").remove()
+
+        $("body").on("mouseenter", "a,form, .mt-map-area", function () {
+            var point = $(this).find(".mt-point")
+            if (point.length) {
+                point.hide()
+                self.showNodeTip(this)
+            }
+        }).on("mouseleave", "a, form, .mt-map-area", function () {
+            var point = $(this).find(".mt-point")
+            if (point.length) {
+                point.show()
+                self.hideNodeTip()
+            }
+        })
+
+        $("body").on("mouseenter", ".mt-map-area", function () {
+            $(this).css({
+                "background-color": "rgba(0,0,0,0.4)"
+            })
+        }).on("mouseleave", ".mt-map-area", function () {
+            $(this).css({
+                "background-color": "rgba(0,0,0,0)"
+            })
+        }).on("click", ".mt-map-area", function () {
+            window.open($(this).data("href"))
+        })
+
+        console.group('A tag match:');
+
+
+        $("a").each(function (index, item) {
+            var link = $(item)
+            var orig_href = link.attr("href")
+            var bi = link.attr('bi')
+            var href = orig_href
+            var urlData
+
+            if (self.isCategory) {
+
+                var id = link.data('id')
+                if (!id || id === '') {
+                    return;
+                }
+                urlData = linkJson[id]
+                if (urlData) {
+                    self.setNodeView(urlData, link, {
+                        'left': "117px"
+                    })
+                } else {
+                    console.log("fail:", link.attr('href'), id)
+                }
+
+            } else {
+
+                if (href && href.charAt(0) != "#" && href !== '') {
+
+                    href = href.replace(/\s+\?/, "?")
+                        .replace(/\.com(\?.+)?$/, ".com/$1")
+                        .replace(/\?p=[0-9]+/, "")
+
+                    href = mtContent.checkBI(href, bi)
+
+                    urlData = linkJson[href]
+
+                    if (urlData) {
+                        self.setNodeView(urlData, link)
+                    } else {
+                        console.log("fail:", orig_href)
+                    }
+                }
+
+                // 对于漂浮的图片，a没有高度
+                var includeImg = link.find("img")
+
+                if (includeImg.css('float') && includeImg.css('float') !== 'none') {
+                    link.css({
+                        'display': 'block',
+                        'width': includeImg.width(),
+                        'height': includeImg.height(),
+                        'float': includeImg.css('float')
+                    })
+                }
+
+            }
+
+        })
+        console.groupEnd();
+
+        console.group("Img map match:");
+
+        $("img").each(function (index, item) {
+            var owner = $(this);
+            var mapname = owner.attr("usemap");
+
+            var lazyloadImg = owner.attr("src2") || owner.data('oxlazy')
+            if (lazyloadImg) {
+                owner.attr({
+                    src: lazyloadImg
+                })
+            }
+
+            if (mapname) {
+
+                var wrap = owner.wrap("<div/>").parent().css({
+                    "float": owner.css("float"),
+                    "width": owner.width(),
+                    "height": owner.height(),
+                    "position": "relative",
+                    "margin": "0 auto"
+                });
+
+                $("map[name=" + mapname.substr(1) + "]").find("area").each(function (index) {
+
+                    var orig_href = $(this).attr("href")
+
+                    if (orig_href && orig_href.charAt(0) != "#" && orig_href !== '') {
+
+                        var href = orig_href.replace(/\s+\?/, "?").replace(/\.com(\?.+)?$/, ".com/$1").replace(/\?p=[0-9]+/, "")
+
+                        var urlData = linkJson[href];
+
+                        var mark = self.drawMapMark($(this).attr("shape"), $(this).attr("coords"))
+
+                        mark.data({
+                            "href": $(this).attr("href")
+                        })
+                        wrap.append(mark)
+
+                        if (urlData) {
+                            self.setNodeView(urlData, mark)
+                        } else {
+                            console.log("fail:", orig_href)
+                        }
+
+                    }
+
+                })
+            }
+        })
+
+        console.groupEnd();
+
+        $("form").each(function (index, item) {
+            var action = $(item).attr("action")
+            var urlData = linkJson[action]
+            if (urlData) {
+                self.setNodeView(urlData, $(item))
+            }
+        })
+        console.groupEnd();
+    },
     setNodeView: function (urlData, dom, boxStyle) {
         var self = this
         boxStyle = boxStyle || {}
@@ -117,239 +318,6 @@ var analyzeView = {
     },
     clearNodeTip: function () {
         $('.mt-tip').remove()
-    }
-}
-
-var sideBarView = {
-    init: function () {
-        this.timeBegin = new Date()
-        this.timeEnd = new Date()
-    },
-    render: function (data) {
-        var side = this.side = $('<div class="mt-side"><div class="mt-side-btn"><i></i></div><div class="db"><span style="color:#fff;padding:50px;line-height:170%;display:block">哎，这里放点什么攻城师还没想好!</span></div></div>')
-        side.find('.mt-side-btn').on('click', function () {
-            side.toggleClass('mt-open')
-        })
-        side.appendTo('body')
-    },
-
-    onChangeDate: function (callback) {
-
-    }
-};
-
-
-var homeAnalyzeView = _.extend({}, analyzeView, {
-    init: function () {
-        var self = this
-        sideBarView.init()
-        sideBarView.onChangeDate(function (begin, end) {
-            self.clearNodeTip()
-            self.update(begin, end)
-        })
-        self.update()
-    },
-    update: function (b, e) {
-        var self = this
-        mtContent.getHomeData().done(function (data) {
-            self.render(data)
-            sideBarView.render(data.total)
-        }).fail(function () {
-            console.log('load data fail -> ', arguments)
-        })
-    },
-    render: function (linkJson) {
-        var self = this
-        console.group('A tag match')
-        $("a").each(function (index, item) {
-            var link = $(item)
-            var org_href = link.attr("href")
-            var bi = link.attr('bi')
-            var href = org_href
-
-            if (href && href.charAt(0) != "#" && href !== '') {
-
-                href = href.replace(/\s+\?/, "?")
-                    .replace(/\.com(\?.+)?$/, ".com/$1")
-                    .replace(/\?p=[0-9]+/, "") //去除清缓存的随机数
-
-                href = mtContent.checkBI(href, bi)
-
-                var urlData = linkJson[href]
-
-                if (urlData) {
-                    self.setNodeView(urlData, link)
-                } else {
-                    console.log("fail:", org_href)
-                }
-            }
-
-        })
-
-        console.groupEnd()
-
-        $("form").each(function (index, item) {
-            var action = $(item).attr("action")
-            var urlData = linkJson[action]
-            if (urlData) {
-                self.setNodeView(urlData, $(item))
-            }
-        })
-
-        $("body").on("mouseenter", "a,form", function () {
-            var point = $(this).find(".mt-point")
-            if (point.length) {
-                point.hide()
-                self.showNodeTip(this)
-            }
-        }).on("mouseleave", "a, form", function () {
-            var point = $(this).find(".mt-point")
-            if (point.length) {
-                point.show()
-                self.hideNodeTip()
-            }
-        })
-    }
-
-});
-
-var promotionPageAnalyzeView = _.extend({}, analyzeView, {
-    init: function () {
-        var self = this;
-        sideBarView.init()
-        sideBarView.onChangeDate(function (begin, end) {
-            self.clearNodeTip()
-            self.update(begin, end)
-        })
-        self.update()
-    },
-    update: function (b, e) {
-        var self = this
-        mtContent.getPromotionPageData(b, e).done(function (data) {
-            self.render(data)
-            sideBarView.render(data.total)
-        }).fail(function () {
-            console.log('load data fail -> ', arguments)
-        })
-    },
-    render: function (linkJson) {
-        var self = this
-        $("body").on("mouseenter", "a,form, .mt-map-area", function () {
-            var point = $(this).find(".mt-point")
-            if (point.length) {
-                point.hide()
-                self.showNodeTip(this)
-            }
-        }).on("mouseleave", "a, form, .mt-map-area", function () {
-            var point = $(this).find(".mt-point")
-            if (point.length) {
-                point.show()
-                self.hideNodeTip()
-            }
-        })
-
-        $("body").on("mouseenter", ".mt-map-area", function () {
-            $(this).css({
-                "background-color": "rgba(0,0,0,0.4)"
-            })
-        }).on("mouseleave", ".mt-map-area", function () {
-            $(this).css({
-                "background-color": "rgba(0,0,0,0)"
-            })
-        }).on("click", ".mt-map-area", function () {
-            window.open($(this).data("href"))
-        })
-
-        console.group('A tag match:');
-        $("a").each(function (index, item) {
-            var link = $(item)
-            var orig_href = link.attr("href")
-            var href = orig_href
-            if (href && href.charAt(0) != "#") {
-
-                href = href.replace(/\s+\?/, "?").replace(/\.com(\?.+)?$/, ".com/$1").replace(/\?p=[0-9]+/, "")
-
-                var urlData = linkJson[href]
-
-                if (urlData) {
-                    self.setNodeView(urlData, link)
-                } else {
-                    console.log("fail:", orig_href)
-                }
-            }
-
-            // 对于漂浮的图片，a没有高度
-            var includeImg = link.find("img")
-            if (includeImg.css('float') && includeImg.css('float') !== 'none') {
-                link.css({
-                    'display': 'block',
-                    'width': includeImg.width(),
-                    'height': includeImg.height(),
-                    'float': includeImg.css('float')
-                })
-            }
-
-        })
-        console.groupEnd();
-
-        console.group("Img map match:");
-        $("img").each(function (index, item) {
-            var owner = $(this);
-            var mapname = owner.attr("usemap");
-
-            var lazyloadImg = owner.attr("src2")
-            if (lazyloadImg) {
-                owner.attr({
-                    src: lazyloadImg
-                }).removeAttr("src2")
-            }
-
-            if (mapname) {
-
-                var wrap = owner.wrap("<div/>").parent().css({
-                    "float": owner.css("float"),
-                    "width": owner.width(),
-                    "height": owner.height(),
-                    "position": "relative",
-                    "margin": "0 auto"
-                });
-
-                $("map[name=" + mapname.substr(1) + "]").find("area").each(function (index) {
-
-                    var orig_href = $(this).attr("href");
-
-                    if (orig_href && orig_href.charAt(0) != "#") {
-
-                        var href = orig_href.replace(/\s+\?/, "?").replace(/\.com(\?.+)?$/, ".com/$1").replace(/\?p=[0-9]+/, "")
-
-                        var urlData = linkJson[href];
-                        var mark = self.drawMapMark($(this).attr("shape"), $(this).attr("coords"))
-                        mark.data({
-                            "href": $(this).attr("href")
-                        })
-                        wrap.append(mark)
-
-                        if (urlData) {
-                            self.setNodeView(urlData, mark)
-                        } else {
-                            console.log("fail:", orig_href)
-                        }
-
-                    }
-
-                })
-            }
-        })
-        console.groupEnd();
-
-        $("form").each(function (index, item) {
-            var action = $(item).attr("action")
-            var urlData = linkJson[action]
-            if (urlData) {
-                self.setNodeView(urlData, $(item))
-            }
-        })
-        console.groupEnd();
     },
     drawMapMark: function (shape, coords) {
         var self = this;
@@ -407,93 +375,47 @@ var promotionPageAnalyzeView = _.extend({}, analyzeView, {
 
         return [leftMin, topMin, leftMax, topMax]
     }
-})
+}
 
-var categoryPageAnalyzeView = _.extend({}, analyzeView, {
-    init: function (categoryType) {
+var sideBarView = {
+    init: function () {
+        this.timeBegin = new Date()
+        this.timeEnd = new Date()
+        this.callbacks = []
+    },
+    render: function (data) {
         var self = this;
-        self.cateType = categoryType;
-        sideBarView.init()
-        sideBarView.onChangeDate(function (begin, end) {
-            self.clearNodeTip()
-            self.update(begin, end)
+        var side = self.side = $('<div class="mt-side"><div class="mt-side-btn"><i></i></div><div class="bd"><div class="total-info"><h3></h3><div></div></div><div class="datepicker"><h3>选择流量统计的时间</h3><div class="datepicker-box"></div></div></div></div>')
+        side.find('.mt-side-btn').on('click', function () {
+            side.toggleClass('mt-open')
         })
-        self.update()
-    },
-    update: function () {
-        var self = this
-        mtContent.getCategoryPageData(self.cateType).done(function (data) {
-            self.render(data)
-            sideBarView.render(data.total)
-        }).fail(function () {
-            console.log('load data fail -> ', arguments)
-        })
-    },
-    render: function (linkJson) {
-        var self = this
-        console.group('A tag match')
 
-        $("a").each(function (index, item) {
-            var link = $(item)
-            var id = link.data('id')
-
-            if (!id || id === '') {
-                return;
-            }
-
-            var urlData = linkJson[id]
-
-            if (urlData) {
-                self.setNodeView(urlData, link, {
-                    'left': "117px"
+        side.find(".datepicker-box").datepicker({
+            dateFormat: "yymmdd",
+            onSelect: function (dateText, inst) {
+                self.callbacks.forEach(function (element, index, array) {
+                    element.call(this, dateText)
                 })
-            } else {
-                console.log("fail:", link.attr('href'), id)
             }
+        });
 
-        })
+        side.appendTo('body')
+    },
 
-        console.groupEnd()
-
-        $("body").on("mouseenter", "a", function () {
-            var point = $(this).find(".mt-point")
-            if (point.length) {
-                point.hide()
-                self.showNodeTip(this)
-            }
-        }).on("mouseleave", "a", function () {
-            var point = $(this).find(".mt-point")
-            if (point.length) {
-                point.show()
-                self.hideNodeTip()
-            }
-        })
-
-        $(".l-sider").css({
-            overflow: "visible"
-        })
+    onChangeDate: function (callback) {
+        this.callbacks.push(callback)
     }
-})
+};
+
 
 $(function () {
     chrome.runtime.sendMessage({
         action: "getSetting"
     }, function (response) {
         var setting = response.setting;
-        if (setting.homeAnalyzeOn && mtContent.where.isHome) {
-            homeAnalyzeView.init()
-        } else if (setting.promotionPageAnalyzeOn && mtContent.where.isPromotion) {
-            promotionPageAnalyzeView.init()
-        } else if (setting.categoryPageAnalyzeOn) {
-            if (mtContent.where.isCategoryWomen) {
-                categoryPageAnalyzeView.init("women")
-            } else if (mtContent.where.isCategoryMen) {
-                categoryPageAnalyzeView.init("men")
-            } else if (mtContent.where.isCategoryChoice) {
-                categoryPageAnalyzeView.init("choice")
-            }
 
-
+        if (setting.analyzeOn) {
+            analyzeView.init()
         }
     });
 })
