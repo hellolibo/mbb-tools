@@ -48,6 +48,14 @@ module.exports = function (grunt) {
                     from: "@VERSION",
                     to: "<%=pkg.version%>"
                 }]
+            },
+            update: {
+                src: ["update.xml"],
+                dest: "dist/update.xml",
+                replacements: [{
+                    from: "@VERSION",
+                    to: "<%=pkg.version%>"
+                }]
             }
         }
     });
@@ -59,7 +67,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-copy");
 
-    grunt.registerTask("build", ["jshint", "copy:app", "replace:version", "cssmin:minify", "uglify:minify"]);
+    grunt.registerTask("build", ["jshint", "copy:app", "replace:version", "replace:update", "cssmin:minify", "uglify:minify"]);
 
 
 };

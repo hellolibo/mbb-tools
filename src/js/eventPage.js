@@ -1,7 +1,7 @@
 /*global mtModel:true, OrderNotify:true*/
 
 
-chrome.runtime.onMessage.addListener(
+(chrome.runtime || chrome.extension).onMessage.addListener(
     function (request, sender, sendResponse) {
        if (request.action == "getSetting") {
             sendResponse({

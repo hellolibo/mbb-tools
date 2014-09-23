@@ -152,7 +152,7 @@ var analyzeView = {
 
         $("a").each(function (index, item) {
             var link = $(item)
-            var orig_href = link.attr("href")
+            var orig_href = $.trim(link.attr("href"))
             var bi = link.attr('bi')
             var href = orig_href
             var urlData
@@ -193,8 +193,8 @@ var analyzeView = {
 
                 // 对于漂浮的图片，a没有高度
                 var includeImg = link.find("img")
-
-                if (includeImg.css('float') && includeImg.css('float') !== 'none') {
+                
+                if (includeImg.css('float') && includeImg.css('float') !== 'none' && !link.css('overflow')) {
                     link.css({
                         'display': 'block',
                         'width': includeImg.width(),
@@ -409,7 +409,7 @@ var sideBarView = {
 
 
 $(function () {
-    chrome.runtime.sendMessage({
+    (chrome.runtime || chrome.extension).sendMessage({
         action: "getSetting"
     }, function (response) {
         var setting = response.setting;
